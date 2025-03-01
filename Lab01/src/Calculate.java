@@ -31,12 +31,12 @@ public class Calculate {
             double diff = num1 - num2;
             double product = num1 * num2;
             String quotient = (num2 != 0) ? String.valueOf(num1 / num2) : "Không thể chia cho 0";
-            String message = "Tổng: " + sum +
-                    "\nHiệu: " + diff +
-                    "\nTích: " + product +
-                    "\nThương: " + quotient;
+            String message = "Sum: " + sum +
+                    "\nDiff: " + diff +
+                    "\nProduct: " + product +
+                    "\nQuotient: " + quotient;
 
-            JOptionPane.showMessageDialog(null, message, "Kết quả", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, message, "Result", JOptionPane.INFORMATION_MESSAGE);
             System.exit(0);
         }else {
             JOptionPane.showMessageDialog(null, "Please enter a valid number");
