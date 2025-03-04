@@ -1,5 +1,5 @@
 import javax.swing.*;
-public class Calculate {
+public class Bai225Calculate {
     // Check valid double
     public static boolean isValidDouble(String str) {
         try {
