@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="hust.soict.itep.aims.screen.customer.controller.ViewStoreController"
+      alignment="CENTER" spacing="10" prefWidth="1024" prefHeight="768" style="-fx-padding: 20 0 0 20;">
+    <HBox alignment="CENTER" spacing="10" prefHeight="100">
+        <Label text="AIMS" style="-fx-font-size: 50px; -fx-text-fill: #004cff;" />
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button fx:id="btnViewCart" text="View Cart" prefWidth="100" prefHeight="50" onAction="#btnViewCartPressed" />
+    </HBox>
+    <ScrollPane fitToWidth="true" prefHeight="760">
+        <GridPane fx:id="gridPane" hgap="20" vgap="20" />
+    </ScrollPane>
+</VBox>
