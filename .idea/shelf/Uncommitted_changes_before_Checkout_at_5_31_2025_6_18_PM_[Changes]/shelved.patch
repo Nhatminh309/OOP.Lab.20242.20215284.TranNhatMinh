@@ -1,0 +1,2116 @@
+Index: Lab05/AimsProject/src/main/java/hust/soict/itep/aims/screen/customer/controller/ItemController.java
+===================================================================
+diff --git a/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/screen/customer/controller/ItemController.java b/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/screen/customer/controller/ItemController.java
+deleted file mode 100644
+--- a/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/screen/customer/controller/ItemController.java	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,54 +0,0 @@
+-package hust.soict.itep.aims.screen.customer.controller;
+-
+-import hust.soict.itep.aims.Cart;
+-import hust.soict.itep.aims.media.*;
+-import hust.soict.itep.aims.exception.PlayerException;
+-import javafx.fxml.FXML;
+-import javafx.scene.control.Alert;
+-import javafx.scene.control.Button;
+-import javafx.scene.control.Label;
+-
+-public class ItemController {
+-    @FXML
+-    private Label lblTitle;
+-    @FXML
+-    private Label lblCost;
+-    @FXML
+-    private Button btnAddToCart;
+-    @FXML
+-    private Button btnPlay;
+-
+-    private Media media;
+-    private Cart cart; // để add vào cart
+-
+-    public void setData(Media media, Cart cart) {
+-        this.media = media;
+-        this.cart = cart;
+-        lblTitle.setText(media.getTitle());
+-        lblCost.setText(String.format("%.2f $", media.getCost()));
+-        btnPlay.setVisible(media instanceof Playable);
+-    }
+-
+-    @FXML
+-    private void btnAddToCartClicked() {
+-        if (cart != null && media != null) {
+-            cart.addMedia(media);
+-            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Added to cart!");
+-            alert.showAndWait();
+-        }
+-    }
+-
+-    @FXML
+-    private void btnPlayClicked() {
+-        if (media instanceof Playable) {
+-            try {
+-                ((Playable) media).play();
+-                Alert alert = new Alert(Alert.AlertType.INFORMATION, "Playing: " + media.getTitle());
+-                alert.showAndWait();
+-            } catch (PlayerException ex) {
+-                Alert alert = new Alert(Alert.AlertType.ERROR, ex.getMessage());
+-                alert.showAndWait();
+-            }
+-        }
+-    }
+-}
+Index: Lab05/AimsProject/src/main/java/hust/soict/itep/aims/media/Track.java
+===================================================================
+diff --git a/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/media/Track.java b/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/media/Track.java
+deleted file mode 100644
+--- a/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/media/Track.java	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,51 +0,0 @@
+-package hust.soict.itep.aims.media;
+-
+-import hust.soict.itep.aims.exception.PlayerException;
+-
+-public class Track implements Playable{
+-    // Attribute
+-    private String title;
+-    private int length;
+-
+-    // Constructor
+-    public Track(String title, int length) {
+-        this.title = title;
+-        this.length = length;
+-    }
+-
+-    // Method to play a track
+-    public void play() throws PlayerException {
+-        if (this.getLength() > 0) {
+-            System.out.println("Playing track: " + title);
+-            System.out.println("Track length : " + length);
+-        } else {
+-            throw new PlayerException("ERROR: Track length is non-positive!");
+-        }
+-    }
+-
+-    @Override
+-    public boolean equals(Object o) {
+-        if (o instanceof Track track) {
+-            return title.equals(track.getTitle()) && length == track.getLength();
+-        }
+-        return false;
+-    }
+-
+-    // Getter and Setter
+-    public String getTitle() {
+-        return title;
+-    }
+-
+-    public void setTitle(String title) {
+-        this.title = title;
+-    }
+-
+-    public int getLength() {
+-        return length;
+-    }
+-
+-    public void setLength(int length) {
+-        this.length = length;
+-    }
+-}
+-
+Index: Lab05/AimsProject/.mvn/wrapper/maven-wrapper.properties
+===================================================================
+diff --git a/Lab05/AimsProject/.mvn/wrapper/maven-wrapper.properties b/Lab05/AimsProject/.mvn/wrapper/maven-wrapper.properties
+deleted file mode 100644
+--- a/Lab05/AimsProject/.mvn/wrapper/maven-wrapper.properties	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,2 +0,0 @@
+-distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.8.5/apache-maven-3.8.5-bin.zip
+-wrapperUrl=https://repo.maven.apache.org/maven2/org/apache/maven/wrapper/maven-wrapper/3.1.0/maven-wrapper-3.1.0.jar
+\ No newline at end of file
+Index: Lab05/AimsProject/src/main/java/hust/soict/itep/aims/Cart.java
+===================================================================
+diff --git a/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/Cart.java b/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/Cart.java
+deleted file mode 100644
+--- a/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/Cart.java	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,25 +0,0 @@
+-package hust.soict.itep.aims;
+-
+-import hust.soict.itep.aims.media.DigitalVideoDisc;
+-import hust.soict.itep.aims.media.*;
+-import javafx.collections.FXCollections;
+-import javafx.collections.ObservableList;
+-
+-public class Cart {
+-    private ObservableList<Media> itemsOrdered = FXCollections.observableArrayList();
+-
+-    public ObservableList<Media> getItemsOrdered() {
+-        return itemsOrdered;
+-    }
+-    public void addMedia(Media media) {
+-        itemsOrdered.add(media);
+-    }
+-    public void removeMedia(Media media) {
+-        itemsOrdered.remove(media);
+-    }
+-    public float totalCost() {
+-        float total = 0;
+-        for (Media m : itemsOrdered) total += m.getCost();
+-        return total;
+-    }
+-}
+\ No newline at end of file
+Index: Lab05/AimsProject/pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Lab05/AimsProject/pom.xml b/Lab05/AimsProject/pom.xml
+deleted file mode 100644
+--- a/Lab05/AimsProject/pom.xml	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,92 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project xmlns="http://maven.apache.org/POM/4.0.0"
+-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+-  <modelVersion>4.0.0</modelVersion>
+-
+-  <groupId>hust.soict.itep</groupId>
+-  <artifactId>aims</artifactId>
+-  <version>1.0-SNAPSHOT</version>
+-  <name>AimsProject</name>
+-
+-  <properties>
+-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+-<junit.version>5.10.2</junit.version>  </properties>
+-
+-  <dependencies>
+-    <dependency>
+-      <groupId>org.openjfx</groupId>
+-      <artifactId>javafx-controls</artifactId>
+-      <version>21</version>
+-    </dependency>
+-    <dependency>
+-      <groupId>org.openjfx</groupId>
+-      <artifactId>javafx-fxml</artifactId>
+-      <version>21</version>
+-    </dependency>
+-<dependency>
+-      <groupId>org.controlsfx</groupId>
+-      <artifactId>controlsfx</artifactId>
+-      <version>11.2.1</version>
+-    </dependency><dependency>
+-      <groupId>com.dlsc.formsfx</groupId>
+-      <artifactId>formsfx-core</artifactId>
+-      <version>11.6.0</version>
+-      <exclusions>
+-        <exclusion>
+-          <groupId>org.openjfx</groupId>
+-          <artifactId>*</artifactId>
+-        </exclusion>
+-      </exclusions>
+-    </dependency><dependency>
+-      <groupId>org.kordamp.bootstrapfx</groupId>
+-      <artifactId>bootstrapfx-core</artifactId>
+-      <version>0.4.0</version>
+-    </dependency>
+-<dependency>
+-      <groupId>org.junit.jupiter</groupId>
+-      <artifactId>junit-jupiter-api</artifactId>
+-      <version>${junit.version}</version>
+-      <scope>test</scope>
+-    </dependency>
+-    <dependency>
+-      <groupId>org.junit.jupiter</groupId>
+-      <artifactId>junit-jupiter-engine</artifactId>
+-      <version>${junit.version}</version>
+-      <scope>test</scope>
+-    </dependency>  </dependencies>
+-
+-  <build>
+-    <plugins>
+-      <plugin>
+-        <groupId>org.apache.maven.plugins</groupId>
+-        <artifactId>maven-compiler-plugin</artifactId>
+-        <version>3.13.0</version>
+-        <configuration>
+-          <source>21</source>
+-          <target>21</target>
+-        </configuration>
+-      </plugin>
+-      <plugin>
+-        <groupId>org.openjfx</groupId>
+-        <artifactId>javafx-maven-plugin</artifactId>
+-        <version>0.0.8</version>
+-        <executions>
+-          <execution>
+-            <!-- Default configuration for running with: mvn clean javafx:run -->
+-            <id>default-cli</id>
+-            <configuration>
+-              <mainClass>hust.soict.itep.aims/hust.soict.itep.aims.HelloApplication</mainClass>
+-              <launcher>app</launcher>
+-              <jlinkZipName>app</jlinkZipName>
+-              <jlinkImageName>app</jlinkImageName>
+-              <noManPages>true</noManPages>
+-              <stripDebug>true</stripDebug>
+-              <noHeaderFiles>true</noHeaderFiles>
+-            </configuration>
+-          </execution>
+-        </executions>
+-      </plugin>
+-    </plugins>
+-  </build>
+-</project>
+\ No newline at end of file
+Index: Lab05/AimsProject/src/main/java/hust/soict/itep/aims/media/Disc.java
+===================================================================
+diff --git a/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/media/Disc.java b/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/media/Disc.java
+deleted file mode 100644
+--- a/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/media/Disc.java	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,43 +0,0 @@
+-package hust.soict.itep.aims.media;
+-
+-import hust.soict.itep.aims.exception.PlayerException;
+-
+-public class Disc extends Media{
+-    // Attribute
+-    private String director;
+-    private int length;
+-
+-    // Constructor
+-    public Disc(int id, String title) {
+-        super(id, title);
+-    }
+-
+-    public Disc(int id, String title, String category, float cost, String director, int length) {
+-        super(id, title, category, cost);
+-        this.director = director;
+-        this.length = length;
+-    }
+-
+-    // Getter and Setter
+-    public String getDirector() {
+-        return director;
+-    }
+-
+-    public void setDirector(String director) {
+-        this.director = director;
+-    }
+-
+-    public int getLength() {
+-        return length;
+-    }
+-
+-    public void setLength(int length) {
+-        this.length = length;
+-    }
+-
+-    // Method to play
+-    public void play() throws PlayerException {
+-
+-    };
+-}
+-
+Index: Lab05/AimsProject/src/main/java/hust/soict/itep/aims/media/Media.java
+===================================================================
+diff --git a/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/media/Media.java b/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/media/Media.java
+deleted file mode 100644
+--- a/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/media/Media.java	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,91 +0,0 @@
+-package hust.soict.itep.aims.media;
+-
+-import java.util.Comparator;
+-
+-class MediaComparatorByTitle implements Comparator<Media> {
+-    @Override
+-    public int compare(Media media1, Media media2) {
+-        return media1.getTitle().compareTo(media2.getTitle());
+-    }
+-}
+-
+-class MediaComparatorByCost implements Comparator<Media> {
+-    @Override
+-    public int compare(Media media1, Media media2) {
+-        return Double.compare(media1.getCost(), media2.getCost());
+-    }
+-}
+-
+-public abstract class Media{
+-    // Attribute
+-    private int id;
+-    private String title;
+-    private String category;
+-    private float cost;
+-    public static final Comparator<Media> COMPARE_BY_TITLE =
+-            new MediaComparatorByTitle();
+-    public static final Comparator<Media> COMPARE_BY_COST    =
+-            new MediaComparatorByCost();
+-
+-    // Constructor
+-    public Media(int id, String title) {
+-        this.id = id;
+-        this.title = title;
+-    }
+-    public Media(int id, String title, String category, float cost) {
+-        this.id = id;
+-        this.title = title;
+-        this.category = category;
+-        this.cost = cost;
+-    }
+-
+-    // Method to print a media
+-    public void print() {
+-    }
+-
+-    // Method to finds out if the corresponding disk is a match given the title.
+-    public boolean isMatch(String title) {
+-        return title.equals(this.title);
+-    }
+-
+-    @Override
+-    public boolean equals(Object o) {
+-        if (o instanceof Media media) {
+-            return title.equals(media.getTitle());
+-        }
+-        return false;
+-    }
+-
+-    // Getter and Setter
+-    public int getId() {
+-        return id;
+-    }
+-
+-    public void setId(int id) {
+-        this.id = id;
+-    }
+-
+-    public String getTitle() {
+-        return title;
+-    }
+-
+-    public void setTitle(String title) {
+-        this.title = title;
+-    }
+-
+-    public String getCategory() {
+-        return category;
+-    }
+-
+-    public void setCategory(String category) {
+-        this.category = category;
+-    }
+-
+-    public float getCost() {
+-        return cost;
+-    }
+-
+-    public void setCost(float cost) {
+-        this.cost = cost;
+-    }
+-}
+Index: Lab05/AimsProject/.idea/workspace.xml
+===================================================================
+diff --git a/Lab05/AimsProject/.idea/workspace.xml b/Lab05/AimsProject/.idea/workspace.xml
+deleted file mode 100644
+--- a/Lab05/AimsProject/.idea/workspace.xml	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,94 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="AutoImportSettings">
+-    <option name="autoReloadType" value="SELECTIVE" />
+-  </component>
+-  <component name="ChangeListManager">
+-    <list default="true" id="5357c4be-39c7-4354-a61e-1670ce9272c8" name="Changes" comment="" />
+-    <option name="SHOW_DIALOG" value="false" />
+-    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+-    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+-    <option name="LAST_RESOLUTION" value="IGNORE" />
+-  </component>
+-  <component name="FileTemplateManagerImpl">
+-    <option name="RECENT_TEMPLATES">
+-      <list>
+-        <option value="Interface" />
+-        <option value="FxmlFile" />
+-        <option value="Class" />
+-      </list>
+-    </option>
+-  </component>
+-  <component name="MavenImportPreferences">
+-    <option name="generalSettings">
+-      <MavenGeneralSettings>
+-        <option name="mavenHomeTypeForPersistence" value="WRAPPER" />
+-      </MavenGeneralSettings>
+-    </option>
+-  </component>
+-  <component name="ProjectColorInfo"><![CDATA[{
+-  "associatedIndex": 0
+-}]]></component>
+-  <component name="ProjectId" id="2xqtbBpKCtFChWSiLRc0UK3iLLJ" />
+-  <component name="ProjectViewState">
+-    <option name="hideEmptyMiddlePackages" value="true" />
+-    <option name="showLibraryContents" value="true" />
+-  </component>
+-  <component name="PropertiesComponent"><![CDATA[{
+-  "keyToString": {
+-    "Application.CustomerApp.executor": "Run",
+-    "RunOnceActivity.ShowReadmeOnStart": "true",
+-    "kotlin-language-version-configured": "true",
+-    "last_opened_file_path": "C:/NhatMinh/Study/Lab-Git/OOP.Lab.20242.20215284.TranNhatMinh",
+-    "node.js.detected.package.eslint": "true",
+-    "node.js.detected.package.tslint": "true",
+-    "node.js.selected.package.eslint": "(autodetect)",
+-    "node.js.selected.package.tslint": "(autodetect)",
+-    "nodejs_package_manager_path": "npm",
+-    "vue.rearranger.settings.migration": "true"
+-  }
+-}]]></component>
+-  <component name="RunManager">
+-    <configuration name="CustomerApp" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+-      <option name="MAIN_CLASS_NAME" value="hust.soict.itep.aims.CustomerApp" />
+-      <module name="aims" />
+-      <extension name="coverage">
+-        <pattern>
+-          <option name="PATTERN" value="hust.soict.itep.aims.*" />
+-          <option name="ENABLED" value="true" />
+-        </pattern>
+-      </extension>
+-      <method v="2">
+-        <option name="Make" enabled="true" />
+-      </method>
+-    </configuration>
+-    <recent_temporary>
+-      <list>
+-        <item itemvalue="Application.CustomerApp" />
+-      </list>
+-    </recent_temporary>
+-  </component>
+-  <component name="SharedIndexes">
+-    <attachedChunks>
+-      <set>
+-        <option value="bundled-jdk-9823dce3aa75-a94e463ab2e7-intellij.indexing.shared.core-IU-243.26053.27" />
+-        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-IU-243.26053.27" />
+-      </set>
+-    </attachedChunks>
+-  </component>
+-  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+-  <component name="TaskManager">
+-    <task active="true" id="Default" summary="Default task">
+-      <changelist id="5357c4be-39c7-4354-a61e-1670ce9272c8" name="Changes" comment="" />
+-      <created>1748677502366</created>
+-      <option name="number" value="Default" />
+-      <option name="presentableId" value="Default" />
+-      <updated>1748677502366</updated>
+-      <workItem from="1748677503447" duration="10745000" />
+-    </task>
+-    <servers />
+-  </component>
+-  <component name="TypeScriptGeneratedFilesManager">
+-    <option name="version" value="3" />
+-  </component>
+-</project>
+\ No newline at end of file
+Index: Lab05/AimsProject/mvnw.cmd
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Lab05/AimsProject/mvnw.cmd b/Lab05/AimsProject/mvnw.cmd
+deleted file mode 100644
+--- a/Lab05/AimsProject/mvnw.cmd	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,188 +0,0 @@
+-@REM ----------------------------------------------------------------------------
+-@REM Licensed to the Apache Software Foundation (ASF) under one
+-@REM or more contributor license agreements.  See the NOTICE file
+-@REM distributed with this work for additional information
+-@REM regarding copyright ownership.  The ASF licenses this file
+-@REM to you under the Apache License, Version 2.0 (the
+-@REM "License"); you may not use this file except in compliance
+-@REM with the License.  You may obtain a copy of the License at
+-@REM
+-@REM    https://www.apache.org/licenses/LICENSE-2.0
+-@REM
+-@REM Unless required by applicable law or agreed to in writing,
+-@REM software distributed under the License is distributed on an
+-@REM "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-@REM KIND, either express or implied.  See the License for the
+-@REM specific language governing permissions and limitations
+-@REM under the License.
+-@REM ----------------------------------------------------------------------------
+-
+-@REM ----------------------------------------------------------------------------
+-@REM Maven Start Up Batch script
+-@REM
+-@REM Required ENV vars:
+-@REM JAVA_HOME - location of a JDK home dir
+-@REM
+-@REM Optional ENV vars
+-@REM M2_HOME - location of maven2's installed home dir
+-@REM MAVEN_BATCH_ECHO - set to 'on' to enable the echoing of the batch commands
+-@REM MAVEN_BATCH_PAUSE - set to 'on' to wait for a keystroke before ending
+-@REM MAVEN_OPTS - parameters passed to the Java VM when running Maven
+-@REM     e.g. to debug Maven itself, use
+-@REM set MAVEN_OPTS=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000
+-@REM MAVEN_SKIP_RC - flag to disable loading of mavenrc files
+-@REM ----------------------------------------------------------------------------
+-
+-@REM Begin all REM lines with '@' in case MAVEN_BATCH_ECHO is 'on'
+-@echo off
+-@REM set title of command window
+-title %0
+-@REM enable echoing by setting MAVEN_BATCH_ECHO to 'on'
+-@if "%MAVEN_BATCH_ECHO%" == "on"  echo %MAVEN_BATCH_ECHO%
+-
+-@REM set %HOME% to equivalent of $HOME
+-if "%HOME%" == "" (set "HOME=%HOMEDRIVE%%HOMEPATH%")
+-
+-@REM Execute a user defined script before this one
+-if not "%MAVEN_SKIP_RC%" == "" goto skipRcPre
+-@REM check for pre script, once with legacy .bat ending and once with .cmd ending
+-if exist "%USERPROFILE%\mavenrc_pre.bat" call "%USERPROFILE%\mavenrc_pre.bat" %*
+-if exist "%USERPROFILE%\mavenrc_pre.cmd" call "%USERPROFILE%\mavenrc_pre.cmd" %*
+-:skipRcPre
+-
+-@setlocal
+-
+-set ERROR_CODE=0
+-
+-@REM To isolate internal variables from possible post scripts, we use another setlocal
+-@setlocal
+-
+-@REM ==== START VALIDATION ====
+-if not "%JAVA_HOME%" == "" goto OkJHome
+-
+-echo.
+-echo Error: JAVA_HOME not found in your environment. >&2
+-echo Please set the JAVA_HOME variable in your environment to match the >&2
+-echo location of your Java installation. >&2
+-echo.
+-goto error
+-
+-:OkJHome
+-if exist "%JAVA_HOME%\bin\java.exe" goto init
+-
+-echo.
+-echo Error: JAVA_HOME is set to an invalid directory. >&2
+-echo JAVA_HOME = "%JAVA_HOME%" >&2
+-echo Please set the JAVA_HOME variable in your environment to match the >&2
+-echo location of your Java installation. >&2
+-echo.
+-goto error
+-
+-@REM ==== END VALIDATION ====
+-
+-:init
+-
+-@REM Find the project base dir, i.e. the directory that contains the folder ".mvn".
+-@REM Fallback to current working directory if not found.
+-
+-set MAVEN_PROJECTBASEDIR=%MAVEN_BASEDIR%
+-IF NOT "%MAVEN_PROJECTBASEDIR%"=="" goto endDetectBaseDir
+-
+-set EXEC_DIR=%CD%
+-set WDIR=%EXEC_DIR%
+-:findBaseDir
+-IF EXIST "%WDIR%"\.mvn goto baseDirFound
+-cd ..
+-IF "%WDIR%"=="%CD%" goto baseDirNotFound
+-set WDIR=%CD%
+-goto findBaseDir
+-
+-:baseDirFound
+-set MAVEN_PROJECTBASEDIR=%WDIR%
+-cd "%EXEC_DIR%"
+-goto endDetectBaseDir
+-
+-:baseDirNotFound
+-set MAVEN_PROJECTBASEDIR=%EXEC_DIR%
+-cd "%EXEC_DIR%"
+-
+-:endDetectBaseDir
+-
+-IF NOT EXIST "%MAVEN_PROJECTBASEDIR%\.mvn\jvm.config" goto endReadAdditionalConfig
+-
+-@setlocal EnableExtensions EnableDelayedExpansion
+-for /F "usebackq delims=" %%a in ("%MAVEN_PROJECTBASEDIR%\.mvn\jvm.config") do set JVM_CONFIG_MAVEN_PROPS=!JVM_CONFIG_MAVEN_PROPS! %%a
+-@endlocal & set JVM_CONFIG_MAVEN_PROPS=%JVM_CONFIG_MAVEN_PROPS%
+-
+-:endReadAdditionalConfig
+-
+-SET MAVEN_JAVA_EXE="%JAVA_HOME%\bin\java.exe"
+-set WRAPPER_JAR="%MAVEN_PROJECTBASEDIR%\.mvn\wrapper\maven-wrapper.jar"
+-set WRAPPER_LAUNCHER=org.apache.maven.wrapper.MavenWrapperMain
+-
+-set DOWNLOAD_URL="https://repo.maven.apache.org/maven2/org/apache/maven/wrapper/maven-wrapper/3.1.0/maven-wrapper-3.1.0.jar"
+-
+-FOR /F "usebackq tokens=1,2 delims==" %%A IN ("%MAVEN_PROJECTBASEDIR%\.mvn\wrapper\maven-wrapper.properties") DO (
+-    IF "%%A"=="wrapperUrl" SET DOWNLOAD_URL=%%B
+-)
+-
+-@REM Extension to allow automatically downloading the maven-wrapper.jar from Maven-central
+-@REM This allows using the maven wrapper in projects that prohibit checking in binary data.
+-if exist %WRAPPER_JAR% (
+-    if "%MVNW_VERBOSE%" == "true" (
+-        echo Found %WRAPPER_JAR%
+-    )
+-) else (
+-    if not "%MVNW_REPOURL%" == "" (
+-        SET DOWNLOAD_URL="%MVNW_REPOURL%/org/apache/maven/wrapper/maven-wrapper/3.1.0/maven-wrapper-3.1.0.jar"
+-    )
+-    if "%MVNW_VERBOSE%" == "true" (
+-        echo Couldn't find %WRAPPER_JAR%, downloading it ...
+-        echo Downloading from: %DOWNLOAD_URL%
+-    )
+-
+-    powershell -Command "&{"^
+-		"$webclient = new-object System.Net.WebClient;"^
+-		"if (-not ([string]::IsNullOrEmpty('%MVNW_USERNAME%') -and [string]::IsNullOrEmpty('%MVNW_PASSWORD%'))) {"^
+-		"$webclient.Credentials = new-object System.Net.NetworkCredential('%MVNW_USERNAME%', '%MVNW_PASSWORD%');"^
+-		"}"^
+-		"[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; $webclient.DownloadFile('%DOWNLOAD_URL%', '%WRAPPER_JAR%')"^
+-		"}"
+-    if "%MVNW_VERBOSE%" == "true" (
+-        echo Finished downloading %WRAPPER_JAR%
+-    )
+-)
+-@REM End of extension
+-
+-@REM Provide a "standardized" way to retrieve the CLI args that will
+-@REM work with both Windows and non-Windows executions.
+-set MAVEN_CMD_LINE_ARGS=%*
+-
+-%MAVEN_JAVA_EXE% ^
+-  %JVM_CONFIG_MAVEN_PROPS% ^
+-  %MAVEN_OPTS% ^
+-  %MAVEN_DEBUG_OPTS% ^
+-  -classpath %WRAPPER_JAR% ^
+-  "-Dmaven.multiModuleProjectDirectory=%MAVEN_PROJECTBASEDIR%" ^
+-  %WRAPPER_LAUNCHER% %MAVEN_CONFIG% %*
+-if ERRORLEVEL 1 goto error
+-goto end
+-
+-:error
+-set ERROR_CODE=1
+-
+-:end
+-@endlocal & set ERROR_CODE=%ERROR_CODE%
+-
+-if not "%MAVEN_SKIP_RC%"=="" goto skipRcPost
+-@REM check for post script, once with legacy .bat ending and once with .cmd ending
+-if exist "%USERPROFILE%\mavenrc_post.bat" call "%USERPROFILE%\mavenrc_post.bat"
+-if exist "%USERPROFILE%\mavenrc_post.cmd" call "%USERPROFILE%\mavenrc_post.cmd"
+-:skipRcPost
+-
+-@REM pause the script if MAVEN_BATCH_PAUSE is set to 'on'
+-if "%MAVEN_BATCH_PAUSE%"=="on" pause
+-
+-if "%MAVEN_TERMINATE_CMD%"=="on" exit %ERROR_CODE%
+-
+-cmd /C exit /B %ERROR_CODE%
+Index: Lab05/AimsProject/src/main/java/hust/soict/itep/aims/exception/PlayerException.java
+===================================================================
+diff --git a/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/exception/PlayerException.java b/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/exception/PlayerException.java
+deleted file mode 100644
+--- a/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/exception/PlayerException.java	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,14 +0,0 @@
+-package hust.soict.itep.aims.exception;
+-
+-public class PlayerException extends Exception{
+-    private String description;
+-
+-    public PlayerException(String description) {
+-        this.description = description;
+-    }
+-
+-    @Override
+-    public String getMessage() {
+-        return description;
+-    }
+-}
+Index: Lab05/AimsProject/src/main/java/hust/soict/itep/aims/CustomerApp.java
+===================================================================
+diff --git a/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/CustomerApp.java b/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/CustomerApp.java
+deleted file mode 100644
+--- a/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/CustomerApp.java	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,73 +0,0 @@
+-package hust.soict.itep.aims;
+-
+-import hust.soict.itep.aims.media.Book;
+-import hust.soict.itep.aims.media.CompactDisc;
+-import hust.soict.itep.aims.media.DigitalVideoDisc;
+-import hust.soict.itep.aims.media.Track;
+-import hust.soict.itep.aims.screen.customer.controller.ViewStoreController;
+-import javafx.application.Application;
+-import javafx.fxml.FXMLLoader;
+-import javafx.scene.Parent;
+-import javafx.scene.Scene;
+-import javafx.stage.Stage;
+-
+-public class CustomerApp extends Application {
+-    @Override
+-    public void start(Stage primaryStage) throws Exception {
+-        Store store = new Store();
+-        Cart cart = new Cart();
+-
+-        Book book1 = new Book(1, "Doraemon", "Comic", 9.99f);
+-        book1.addAuthor("Fujiko F. Fujio");
+-        Book book2 = new Book(2, "Clean Code", "Programming", 15.5f);
+-        book2.addAuthor("Robert C. Martin");
+-        book2.addAuthor("Martin Fowler");
+-        Book book3 = new Book(3, "Sherlock Holmes", "Detective", 12.5f);
+-        book3.addAuthor("Arthur Conan Doyle");
+-        Book book4 = new Book(4, "The Great Gatsby", "Classic", 8.4f);
+-        book4.addAuthor("F. Scott Fitzgerald");
+-        Book book5 = new Book(5, "To Kill a Mockingbird", "Classic", 11.2f);
+-        book5.addAuthor("Harper Lee");
+-        Book book6 = new Book(6, "1984", "Dystopian", 10.6f);
+-        book6.addAuthor("George Orwell");
+-
+-        store.addMedia(book1);
+-        store.addMedia(book2);
+-        store.addMedia(book3);
+-        store.addMedia(book4);
+-        store.addMedia(book5);
+-        store.addMedia(book6);
+-
+-        DigitalVideoDisc dvd1 = new DigitalVideoDisc(7, "Harry Potter", "Fantasy", "Chris Columbus", 0, 19.99f);
+-        DigitalVideoDisc dvd2 = new DigitalVideoDisc(8, "Star Wars", "Sci-Fi", "George Lucas", 110, 17.99f);
+-        DigitalVideoDisc dvd3 = new DigitalVideoDisc(9, "Avengers: Endgame", "Action", "Anthony Russo", 180, 25.0f);
+-        DigitalVideoDisc dvd4 = new DigitalVideoDisc(10, "Inception", "Thriller", "Christopher Nolan", 148, 15.0f);
+-
+-        store.addMedia(dvd1);
+-        store.addMedia(dvd2);
+-        store.addMedia(dvd3);
+-        store.addMedia(dvd4);
+-
+-        CompactDisc cd1 = new CompactDisc(11, "The Best of Mozart", "Classical", 12.0f, "Wolfgang Amadeus Mozart", 30, "Mozart");
+-        cd1.addTrack(new Track("Symphony No. 40", 15));
+-        cd1.addTrack(new Track("Eine kleine Nachtmusik", 8));
+-        CompactDisc cd2 = new CompactDisc(12, "Lofi Chill", "Instrumental", 8.5f, "DJ Chill", 25, "Various Artists");
+-        cd2.addTrack(new Track("Chill Vibes", 10));
+-        cd2.addTrack(new Track("Morning Coffee", 15));
+-
+-        store.addMedia(cd1);
+-        store.addMedia(cd2);
+-
+-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/hust/soict/itep/aims/screen/customer/view/Store.fxml"));
+-        Parent root = loader.load();
+-        ViewStoreController controller = loader.getController();
+-        controller.setStoreAndCart(store, cart);
+-        primaryStage.setTitle("AIMS Store");
+-        primaryStage.setScene(new Scene(root));
+-        primaryStage.show();
+-    }
+-
+-    public static void main(String[] args) {
+-        launch(args);
+-    }
+-}
+Index: Lab05/AimsProject/.idea/jarRepositories.xml
+===================================================================
+diff --git a/Lab05/AimsProject/.idea/jarRepositories.xml b/Lab05/AimsProject/.idea/jarRepositories.xml
+deleted file mode 100644
+--- a/Lab05/AimsProject/.idea/jarRepositories.xml	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,20 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="RemoteRepositoriesConfiguration">
+-    <remote-repository>
+-      <option name="id" value="central" />
+-      <option name="name" value="Central Repository" />
+-      <option name="url" value="https://repo.maven.apache.org/maven2" />
+-    </remote-repository>
+-    <remote-repository>
+-      <option name="id" value="central" />
+-      <option name="name" value="Maven Central repository" />
+-      <option name="url" value="https://repo1.maven.org/maven2" />
+-    </remote-repository>
+-    <remote-repository>
+-      <option name="id" value="jboss.community" />
+-      <option name="name" value="JBoss Community repository" />
+-      <option name="url" value="https://repository.jboss.org/nexus/content/repositories/public/" />
+-    </remote-repository>
+-  </component>
+-</project>
+\ No newline at end of file
+Index: Lab05/AimsProject/src/main/java/module-info.java
+===================================================================
+diff --git a/Lab05/AimsProject/src/main/java/module-info.java b/Lab05/AimsProject/src/main/java/module-info.java
+deleted file mode 100644
+--- a/Lab05/AimsProject/src/main/java/module-info.java	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,13 +0,0 @@
+-module hust.soict.itep.aims {
+-    requires javafx.controls;
+-    requires javafx.fxml;
+-
+-    requires org.controlsfx.controls;
+-    requires com.dlsc.formsfx;
+-    requires org.kordamp.bootstrapfx.core;
+-
+-    opens hust.soict.itep.aims to javafx.fxml;
+-    opens hust.soict.itep.aims.screen.customer.controller to javafx.fxml;
+-    opens hust.soict.itep.aims.media to javafx.base, javafx.fxml;
+-    exports hust.soict.itep.aims;
+-}
+Index: Lab05/AimsProject/src/main/java/hust/soict/itep/aims/media/Book.java
+===================================================================
+diff --git a/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/media/Book.java b/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/media/Book.java
+deleted file mode 100644
+--- a/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/media/Book.java	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,57 +0,0 @@
+-package hust.soict.itep.aims.media;
+-
+-import java.util.ArrayList;
+-import java.util.List;
+-
+-public class Book extends Media{
+-    // Attribute
+-    private List<String> authors = new ArrayList<String>();
+-
+-    // Constructor
+-    public Book(int id, String title, String category, float cost) {
+-        super(id, title, category, cost);
+-    }
+-
+-    // Method to add an author
+-    public void addAuthor(String authorName) throws Exception {
+-        int indexOfAuthor = authors.indexOf(authorName);
+-        if (indexOfAuthor != -1) { // nếu author đã tồn tại thì báo lỗi
+-            throw new Exception("Author is already in the list");
+-        }
+-        authors.add(authorName);
+-        System.out.println("Added");
+-    }
+-
+-
+-    // Method to remove an author
+-    public void removeAuthor(String authorName) throws Exception {
+-        int indexOfAuthor = authors.indexOf(authorName);
+-        if (indexOfAuthor == -1) {
+-            throw new Exception("Author is absent in the list");
+-        }
+-        authors.remove(indexOfAuthor);
+-        System.out.println("Removed");
+-    }
+-
+-    // Method to print a book
+-    @Override
+-    public void print() {
+-        System.out.print(getId() + ". Book - "
+-                + getTitle() + " - "
+-                + getCategory() + " - ");
+-        for (String author: authors) {
+-            System.out.print(author + " - ");
+-        }
+-        System.out.println(getCost() + "$");
+-    }
+-
+-    // Getter and Setter
+-    public List<String> getAuthors() {
+-        return authors;
+-    }
+-
+-    public void setAuthors(List<String> authors) {
+-        this.authors = authors;
+-    }
+-}
+-
+Index: Lab05/AimsProject/target/classes/hust/soict/itep/aims/screen/customer/view/Cart.fxml
+===================================================================
+diff --git a/Lab05/AimsProject/target/classes/hust/soict/itep/aims/screen/customer/view/Cart.fxml b/Lab05/AimsProject/target/classes/hust/soict/itep/aims/screen/customer/view/Cart.fxml
+deleted file mode 100644
+--- a/Lab05/AimsProject/target/classes/hust/soict/itep/aims/screen/customer/view/Cart.fxml	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,50 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<?import javafx.scene.control.*?>
+-<?import javafx.scene.layout.*?>
+-
+-<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml"
+-            fx:controller="hust.soict.itep.aims.screen.customer.controller.CartController"
+-            prefWidth="1024" prefHeight="768">
+-
+-    <top>
+-        <HBox alignment="CENTER_LEFT" spacing="10" prefHeight="80" style="-fx-padding: 20 20 0 20;">
+-            <Label text="Cart" style="-fx-font-size: 48px; -fx-font-weight: bold; -fx-text-fill: #004cff;" />
+-            <Region HBox.hgrow="ALWAYS"/>
+-            <Button fx:id="btnViewStore" text="View Store" prefWidth="120" prefHeight="40" onAction="#btnViewStorePressed"/>
+-        </HBox>
+-    </top>
+-
+-    <center>
+-        <VBox alignment="CENTER" spacing="10" style="-fx-padding: 10 30 10 30;">
+-            <HBox spacing="10" alignment="CENTER_LEFT">
+-                <Label text="Filter"/>
+-                <TextField fx:id="tfFilter" prefWidth="180"/>
+-                <RadioButton fx:id="rbById" text="By ID"/>
+-                <RadioButton fx:id="rbByTitle" text="By Title"/>
+-            </HBox>
+-            <TableView fx:id="tblMedia" prefHeight="350">
+-                <columns>
+-                    <TableColumn fx:id="colNo" text=" " prefWidth="40"/>
+-                    <TableColumn fx:id="colMediaId" text="ID" prefWidth="80"/>
+-                    <TableColumn fx:id="colMediaTitle" text="Title" prefWidth="340"/>
+-                    <TableColumn fx:id="colMediaCategory" text="Category" prefWidth="140"/>
+-                    <TableColumn fx:id="colMediaCost" text="Cost" prefWidth="80"/>
+-                </columns>
+-            </TableView>
+-            <HBox alignment="TOP_RIGHT" spacing="10">
+-                <Button fx:id="btnPlay" text="Play" prefWidth="60" onAction="#btnPlayPressed" visible="false"/>
+-                <Button fx:id="btnRemove" text="Remove" prefWidth="70" onAction="#btnRemovePressed" visible="false"/>
+-            </HBox>
+-        </VBox>
+-    </center>
+-
+-    <bottom>
+-        <VBox alignment="CENTER" spacing="20" prefHeight="150" style="-fx-padding: 10 0 10 0;">
+-            <HBox alignment="CENTER" spacing="10">
+-                <Label text="Total:" style="-fx-font-size: 28px; -fx-font-weight: bold;"/>
+-                <Label fx:id="costLabel" text="0 $" style="-fx-font-size: 28px; -fx-font-weight: bold;"/>
+-            </HBox>
+-            <Button fx:id="btnPlaceOrder" text="Place Order" style="-fx-font-size: 24px; -fx-background-color: #004cff; -fx-text-fill: #fff;" prefWidth="220" prefHeight="48"/>
+-        </VBox>
+-    </bottom>
+-</BorderPane>
+Index: Lab05/AimsProject/target/classes/hust/soict/itep/aims/screen/customer/view/Item.fxml
+===================================================================
+diff --git a/Lab05/AimsProject/target/classes/hust/soict/itep/aims/screen/customer/view/Item.fxml b/Lab05/AimsProject/target/classes/hust/soict/itep/aims/screen/customer/view/Item.fxml
+deleted file mode 100644
+--- a/Lab05/AimsProject/target/classes/hust/soict/itep/aims/screen/customer/view/Item.fxml	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,17 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<?import javafx.scene.layout.*?>
+-<?import javafx.scene.control.*?>
+-
+-<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml"
+-            fx:controller="hust.soict.itep.aims.screen.customer.controller.ItemController"
+-            prefWidth="305" prefHeight="175" style="-fx-border-color: #004cff; -fx-border-radius: 8;">
+-    <VBox alignment="CENTER" spacing="10" AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0"
+-          AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
+-        <Label fx:id="lblTitle" style="-fx-font-size: 18px;"/>
+-        <Label fx:id="lblCost" style="-fx-font-size: 16px;"/>
+-        <HBox alignment="CENTER" spacing="20">
+-            <Button fx:id="btnAddToCart" text="Add to Cart" onAction="#btnAddToCartClicked" prefWidth="100"/>
+-            <Button fx:id="btnPlay" text="Play" onAction="#btnPlayClicked" prefWidth="80"/>
+-        </HBox>
+-    </VBox>
+-</AnchorPane>
+Index: Lab05/AimsProject/src/main/java/hust/soict/itep/aims/screen/customer/controller/CartController.java
+===================================================================
+diff --git a/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/screen/customer/controller/CartController.java b/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/screen/customer/controller/CartController.java
+deleted file mode 100644
+--- a/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/screen/customer/controller/CartController.java	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,170 +0,0 @@
+-package hust.soict.itep.aims.screen.customer.controller;
+-
+-import hust.soict.itep.aims.Cart;
+-import hust.soict.itep.aims.Store;
+-import hust.soict.itep.aims.exception.PlayerException;
+-import hust.soict.itep.aims.media.*;
+-import javafx.collections.FXCollections;
+-import javafx.collections.ObservableList;
+-import javafx.fxml.FXML;
+-import javafx.fxml.FXMLLoader;
+-import javafx.scene.Parent;
+-import javafx.scene.Scene;
+-import javafx.scene.control.*;
+-import javafx.scene.control.cell.PropertyValueFactory;
+-import javafx.stage.Stage;
+-
+-public class CartController {
+-
+-    @FXML
+-    private TableView<Media> tblMedia;
+-    @FXML
+-    private TableColumn<Media, Integer> colNo;
+-    @FXML
+-    private TableColumn<Media, Integer> colMediaId;
+-    @FXML
+-    private TableColumn<Media, String> colMediaTitle;
+-    @FXML
+-    private TableColumn<Media, String> colMediaCategory;
+-    @FXML
+-    private TableColumn<Media, Float> colMediaCost;
+-
+-    @FXML
+-    private Button btnPlay;
+-    @FXML
+-    private Button btnRemove;
+-    @FXML
+-    private Button btnViewStore;
+-    @FXML
+-    private Button btnPlaceOrder;
+-    @FXML
+-    private Label costLabel;
+-    @FXML
+-    private TextField tfFilter;
+-    @FXML
+-    private RadioButton rbById;
+-    @FXML
+-    private RadioButton rbByTitle;
+-
+-    private Store store;
+-    private Cart cart;
+-    private ObservableList<Media> fullData = FXCollections.observableArrayList();
+-
+-    public CartController() {}
+-
+-    @FXML
+-    public void initialize() {
+-        // Table columns
+-        colMediaId.setCellValueFactory(new PropertyValueFactory<>("id"));
+-        colMediaTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
+-        colMediaCategory.setCellValueFactory(new PropertyValueFactory<>("category"));
+-        colMediaCost.setCellValueFactory(new PropertyValueFactory<>("cost"));
+-
+-        // Số thứ tự (STT)
+-        colNo.setCellFactory(col -> new TableCell<Media, Integer>() {
+-            @Override
+-            protected void updateItem(Integer item, boolean empty) {
+-                super.updateItem(item, empty);
+-                if (empty || getTableRow() == null || getTableRow().getIndex() >= tblMedia.getItems().size()) {
+-                    setText(null);
+-                } else {
+-                    setText(String.valueOf(getTableRow().getIndex() + 1));
+-                }
+-            }
+-        });
+-
+-        // ToggleGroup cho filter
+-        ToggleGroup filterGroup = new ToggleGroup();
+-        rbById.setToggleGroup(filterGroup);
+-        rbByTitle.setToggleGroup(filterGroup);
+-
+-        // Mặc định chọn By ID
+-        rbById.setSelected(true);
+-
+-        // Filter
+-        tfFilter.textProperty().addListener((obs, oldVal, newVal) -> applyFilter());
+-        rbById.setOnAction(e -> applyFilter());
+-        rbByTitle.setOnAction(e -> applyFilter());
+-
+-        // Xử lý nút Play/Remove
+-        btnPlay.setVisible(false);
+-        btnRemove.setVisible(false);
+-
+-        tblMedia.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+-            boolean hasSelection = newVal != null;
+-            btnPlay.setVisible(hasSelection && newVal instanceof Playable);
+-            btnRemove.setVisible(hasSelection);
+-        });
+-    }
+-
+-    public void setStoreAndCart(Store store, Cart cart) {
+-        this.store = store;
+-        this.cart = cart;
+-
+-        // Copy danh sách media để filter
+-        fullData.setAll(cart.getItemsOrdered());
+-        tblMedia.setItems(fullData);
+-        updateTotalCost();
+-    }
+-
+-    private void updateTotalCost() {
+-        if (cart != null) {
+-            costLabel.setText(String.format("%.2f $", cart.totalCost()));
+-        }
+-    }
+-
+-    private void applyFilter() {
+-        String filterText = tfFilter.getText().trim().toLowerCase();
+-        ObservableList<Media> filtered = FXCollections.observableArrayList();
+-        if (cart != null) {
+-            for (Media m : cart.getItemsOrdered()) {
+-                if (rbById.isSelected()) {
+-                    if (String.valueOf(m.getId()).contains(filterText)) filtered.add(m);
+-                } else if (rbByTitle.isSelected()) {
+-                    if (m.getTitle().toLowerCase().contains(filterText)) filtered.add(m);
+-                }
+-            }
+-        }
+-        tblMedia.setItems(filtered);
+-        updateTotalCost();
+-    }
+-
+-    @FXML
+-    private void btnRemovePressed() {
+-        Media selected = tblMedia.getSelectionModel().getSelectedItem();
+-        if (selected != null && cart != null) {
+-            cart.removeMedia(selected);
+-            applyFilter(); // filter lại (hoặc tblMedia.setItems(cart.getItemsOrdered()))
+-            updateTotalCost();
+-        }
+-    }
+-
+-    @FXML
+-    private void btnPlayPressed() {
+-        Media selected = tblMedia.getSelectionModel().getSelectedItem();
+-        if (selected instanceof Playable) {
+-            try {
+-                ((Playable) selected).play();
+-                Alert alert = new Alert(Alert.AlertType.INFORMATION, "Playing: " + selected.getTitle());
+-                alert.showAndWait();
+-            } catch (PlayerException ex) {
+-                Alert alert = new Alert(Alert.AlertType.ERROR, ex.getMessage());
+-                alert.showAndWait();
+-            }
+-        }
+-    }
+-
+-    @FXML
+-    private void btnViewStorePressed() {
+-        try {
+-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/hust/soict/itep/aims/screen/customer/view/Store.fxml"));
+-            Parent root = loader.load();
+-            ViewStoreController controller = loader.getController();
+-            controller.setStoreAndCart(store, cart);
+-            Stage stage = (Stage) btnViewStore.getScene().getWindow();
+-            stage.setScene(new Scene(root));
+-        } catch (Exception e) {
+-            e.printStackTrace();
+-        }
+-    }
+-}
+Index: Lab05/AimsProject/src/main/java/hust/soict/itep/aims/screen/customer/controller/ViewStoreController.java
+===================================================================
+diff --git a/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/screen/customer/controller/ViewStoreController.java b/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/screen/customer/controller/ViewStoreController.java
+deleted file mode 100644
+--- a/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/screen/customer/controller/ViewStoreController.java	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,73 +0,0 @@
+-package hust.soict.itep.aims.screen.customer.controller;
+-
+-import hust.soict.itep.aims.Cart;
+-import hust.soict.itep.aims.Store;
+-import hust.soict.itep.aims.media.Media;
+-import javafx.event.ActionEvent;
+-import javafx.fxml.FXML;
+-import javafx.fxml.FXMLLoader;
+-import javafx.scene.Parent;
+-import javafx.scene.Scene;
+-import javafx.scene.control.Button;
+-import javafx.scene.layout.AnchorPane;
+-import javafx.scene.layout.GridPane;
+-import javafx.stage.Stage;
+-
+-public class ViewStoreController {
+-    @FXML
+-    private GridPane gridPane;
+-    @FXML
+-    private Button btnViewCart;
+-
+-    private Store store;
+-    private Cart cart;
+-
+-    public void setStoreAndCart(Store store, Cart cart) {
+-        this.store = store;
+-        this.cart = cart;
+-        loadMedia();
+-    }
+-
+-    @FXML
+-    public void initialize() {
+-        // Sau khi setStoreAndCart mới load data.
+-    }
+-
+-    private void loadMedia() {
+-        try {
+-            gridPane.getChildren().clear();
+-            int column = 0;
+-            int row = 0;
+-            for (Media media : store.getItemsInStore()) {
+-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/hust/soict/itep/aims/screen/customer/view/Item.fxml"));
+-                AnchorPane anchorPane = loader.load();
+-                ItemController controller = loader.getController();
+-                controller.setData(media, cart);
+-
+-                gridPane.add(anchorPane, column, row);
+-
+-                column++;
+-                if (column == 3) { // 3 sản phẩm một hàng
+-                    column = 0;
+-                    row++;
+-                }
+-            }
+-        } catch (Exception e) {
+-            e.printStackTrace();
+-        }
+-    }
+-
+-    @FXML
+-    private void btnViewCartPressed(ActionEvent event) {
+-        try {
+-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/hust/soict/itep/aims/screen/customer/view/Cart.fxml"));
+-            Parent root = loader.load();
+-            CartController controller = loader.getController();
+-            controller.setStoreAndCart(store, cart); // Nhớ thêm phương thức này vào CartController!
+-            Stage stage = (Stage) btnViewCart.getScene().getWindow();
+-            stage.setScene(new Scene(root));
+-        } catch (Exception e) {
+-            e.printStackTrace();
+-        }
+-    }
+-}
+Index: Lab05/AimsProject/src/main/java/hust/soict/itep/aims/media/CompactDisc.java
+===================================================================
+diff --git a/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/media/CompactDisc.java b/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/media/CompactDisc.java
+deleted file mode 100644
+--- a/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/media/CompactDisc.java	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,98 +0,0 @@
+-package hust.soict.itep.aims.media;
+-
+-import hust.soict.itep.aims.exception.PlayerException;
+-
+-import java.util.ArrayList;
+-import java.util.Iterator;
+-import java.util.List;
+-
+-public class CompactDisc extends Disc implements Playable{
+-    // Attribute
+-    private String artist;
+-    private List<Track> tracks = new ArrayList<Track>();
+-
+-    // Constructor
+-    public CompactDisc(int id, String title, String category, float cost,
+-                       String director, int length, String artist) {
+-        super(id, title, category, cost, director, length);
+-        this.artist = artist;
+-    }
+-
+-    // Method to add a track
+-    public void addTrack(Track track) throws Exception {
+-        int indexOfTrack = tracks.indexOf(track);
+-        if (indexOfTrack != -1) { // nếu đã tồn tại thì ném Exception
+-            throw new Exception("Track is already in the list");
+-        }
+-        tracks.add(track); // chỉ thêm nếu chưa tồn tại
+-        System.out.println("Added");
+-    }
+-
+-
+-    // Method to remove a track
+-    public void removeTrack(Track track) throws Exception {
+-        int indexOfTrack = tracks.indexOf(track);
+-        if (indexOfTrack == -1) {
+-            throw new Exception("Track is absent in the list");
+-        }
+-        tracks.remove(indexOfTrack);
+-        System.out.println("Removed");
+-    }
+-
+-    // Method to get the length of CD
+-    @Override
+-    public int getLength() {
+-        int length = 0;
+-        for (Track track: tracks) {
+-            length += track.getLength();
+-        }
+-        setLength(length);
+-        return length;
+-    }
+-
+-    // Method to play a track
+-    @Override
+-    public void play() throws PlayerException {
+-        if(this.getLength() > 0) {
+-            System.out.println("Playing CD: " + this.getTitle());
+-            System.out.println("CD artist: " + artist);
+-            System.out.println("CD length: " + this.getLength());
+-            for (Track track: tracks) {
+-                track.play();
+-            }
+-            Iterator<Track> iter = tracks.iterator();
+-            Track nextTrack;
+-            while(iter.hasNext()) {
+-                nextTrack = (Track) iter.next();
+-                try {
+-                    nextTrack.play();
+-                } catch (PlayerException e) {
+-                    throw e;
+-                }
+-            }
+-        } else {
+-            throw new PlayerException("ERROR: CD length is non-positive!");
+-        }
+-    }
+-
+-    // Method to print a cd
+-    @Override
+-    public void print() {
+-        System.out.println(getId() + ". CD - "
+-                + getTitle() + " - "
+-                + getCategory() + " - "
+-                + getDirector() + " - "
+-                + artist + " - "
+-                + getLength() + ": "
+-                + getCost() + "$");
+-    }
+-
+-    // Getter and Setter
+-    public String getArtist() {
+-        return artist;
+-    }
+-
+-    public void setArtist(String artist) {
+-        this.artist = artist;
+-    }
+-}
+\ No newline at end of file
+Index: Lab05/AimsProject/src/main/resources/hust/soict/itep/aims/screen/customer/view/Item.fxml
+===================================================================
+diff --git a/Lab05/AimsProject/src/main/resources/hust/soict/itep/aims/screen/customer/view/Item.fxml b/Lab05/AimsProject/src/main/resources/hust/soict/itep/aims/screen/customer/view/Item.fxml
+deleted file mode 100644
+--- a/Lab05/AimsProject/src/main/resources/hust/soict/itep/aims/screen/customer/view/Item.fxml	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,17 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<?import javafx.scene.layout.*?>
+-<?import javafx.scene.control.*?>
+-
+-<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml"
+-            fx:controller="hust.soict.itep.aims.screen.customer.controller.ItemController"
+-            prefWidth="305" prefHeight="175" style="-fx-border-color: #004cff; -fx-border-radius: 8;">
+-    <VBox alignment="CENTER" spacing="10" AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0"
+-          AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
+-        <Label fx:id="lblTitle" style="-fx-font-size: 18px;"/>
+-        <Label fx:id="lblCost" style="-fx-font-size: 16px;"/>
+-        <HBox alignment="CENTER" spacing="20">
+-            <Button fx:id="btnAddToCart" text="Add to Cart" onAction="#btnAddToCartClicked" prefWidth="100"/>
+-            <Button fx:id="btnPlay" text="Play" onAction="#btnPlayClicked" prefWidth="80"/>
+-        </HBox>
+-    </VBox>
+-</AnchorPane>
+Index: Lab05/AimsProject/src/main/java/hust/soict/itep/aims/media/Playable.java
+===================================================================
+diff --git a/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/media/Playable.java b/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/media/Playable.java
+deleted file mode 100644
+--- a/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/media/Playable.java	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,8 +0,0 @@
+-package hust.soict.itep.aims.media;
+-
+-import hust.soict.itep.aims.exception.PlayerException;
+-
+-public interface Playable {
+-    // Method to play
+-    public void play() throws PlayerException;
+-}
+Index: Lab05/AimsProject/target/classes/hust/soict/itep/aims/screen/customer/view/Store.fxml
+===================================================================
+diff --git a/Lab05/AimsProject/target/classes/hust/soict/itep/aims/screen/customer/view/Store.fxml b/Lab05/AimsProject/target/classes/hust/soict/itep/aims/screen/customer/view/Store.fxml
+deleted file mode 100644
+--- a/Lab05/AimsProject/target/classes/hust/soict/itep/aims/screen/customer/view/Store.fxml	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,16 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<?import javafx.scene.control.*?>
+-<?import javafx.scene.layout.*?>
+-
+-<VBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml"
+-      fx:controller="hust.soict.itep.aims.screen.customer.controller.ViewStoreController"
+-      alignment="CENTER" spacing="10" prefWidth="1024" prefHeight="768" style="-fx-padding: 20 0 0 20;">
+-    <HBox alignment="CENTER" spacing="10" prefHeight="100">
+-        <Label text="AIMS" style="-fx-font-size: 50px; -fx-text-fill: #004cff;" />
+-        <Region HBox.hgrow="ALWAYS"/>
+-        <Button fx:id="btnViewCart" text="View Cart" prefWidth="100" prefHeight="50" onAction="#btnViewCartPressed" />
+-    </HBox>
+-    <ScrollPane fitToWidth="true" prefHeight="760">
+-        <GridPane fx:id="gridPane" hgap="20" vgap="20" />
+-    </ScrollPane>
+-</VBox>
+Index: Lab05/AimsProject/.idea/compiler.xml
+===================================================================
+diff --git a/Lab05/AimsProject/.idea/compiler.xml b/Lab05/AimsProject/.idea/compiler.xml
+deleted file mode 100644
+--- a/Lab05/AimsProject/.idea/compiler.xml	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,13 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="CompilerConfiguration">
+-    <annotationProcessing>
+-      <profile name="Maven default annotation processors profile" enabled="true">
+-        <sourceOutputDir name="target/generated-sources/annotations" />
+-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+-        <outputRelativeToContentRoot value="true" />
+-        <module name="aims" />
+-      </profile>
+-    </annotationProcessing>
+-  </component>
+-</project>
+\ No newline at end of file
+Index: Lab05/AimsProject/.gitignore
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Lab05/AimsProject/.gitignore b/Lab05/AimsProject/.gitignore
+deleted file mode 100644
+--- a/Lab05/AimsProject/.gitignore	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,38 +0,0 @@
+-target/
+-!.mvn/wrapper/maven-wrapper.jar
+-!**/src/main/**/target/
+-!**/src/test/**/target/
+-
+-### IntelliJ IDEA ###
+-.idea/modules.xml
+-.idea/jarRepositories.xml
+-.idea/compiler.xml
+-.idea/libraries/
+-*.iws
+-*.iml
+-*.ipr
+-
+-### Eclipse ###
+-.apt_generated
+-.classpath
+-.factorypath
+-.project
+-.settings
+-.springBeans
+-.sts4-cache
+-
+-### NetBeans ###
+-/nbproject/private/
+-/nbbuild/
+-/dist/
+-/nbdist/
+-/.nb-gradle/
+-build/
+-!**/src/main/**/build/
+-!**/src/test/**/build/
+-
+-### VS Code ###
+-.vscode/
+-
+-### Mac OS ###
+-.DS_Store
+\ No newline at end of file
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+deleted file mode 100644
+--- a/.idea/misc.xml	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,6 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="ProjectRootManager">
+-    <output url="file://$PROJECT_DIR$/out" />
+-  </component>
+-</project>
+\ No newline at end of file
+Index: Lab05/AimsProject/.idea/encodings.xml
+===================================================================
+diff --git a/Lab05/AimsProject/.idea/encodings.xml b/Lab05/AimsProject/.idea/encodings.xml
+deleted file mode 100644
+--- a/Lab05/AimsProject/.idea/encodings.xml	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,7 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="Encoding">
+-    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+-    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+-  </component>
+-</project>
+\ No newline at end of file
+Index: Lab05/AimsProject/src/main/resources/hust/soict/itep/aims/screen/customer/view/Cart.fxml
+===================================================================
+diff --git a/Lab05/AimsProject/src/main/resources/hust/soict/itep/aims/screen/customer/view/Cart.fxml b/Lab05/AimsProject/src/main/resources/hust/soict/itep/aims/screen/customer/view/Cart.fxml
+deleted file mode 100644
+--- a/Lab05/AimsProject/src/main/resources/hust/soict/itep/aims/screen/customer/view/Cart.fxml	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,50 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<?import javafx.scene.control.*?>
+-<?import javafx.scene.layout.*?>
+-
+-<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml"
+-            fx:controller="hust.soict.itep.aims.screen.customer.controller.CartController"
+-            prefWidth="1024" prefHeight="768">
+-
+-    <top>
+-        <HBox alignment="CENTER_LEFT" spacing="10" prefHeight="80" style="-fx-padding: 20 20 0 20;">
+-            <Label text="Cart" style="-fx-font-size: 48px; -fx-font-weight: bold; -fx-text-fill: #004cff;" />
+-            <Region HBox.hgrow="ALWAYS"/>
+-            <Button fx:id="btnViewStore" text="View Store" prefWidth="120" prefHeight="40" onAction="#btnViewStorePressed"/>
+-        </HBox>
+-    </top>
+-
+-    <center>
+-        <VBox alignment="CENTER" spacing="10" style="-fx-padding: 10 30 10 30;">
+-            <HBox spacing="10" alignment="CENTER_LEFT">
+-                <Label text="Filter"/>
+-                <TextField fx:id="tfFilter" prefWidth="180"/>
+-                <RadioButton fx:id="rbById" text="By ID"/>
+-                <RadioButton fx:id="rbByTitle" text="By Title"/>
+-            </HBox>
+-            <TableView fx:id="tblMedia" prefHeight="350">
+-                <columns>
+-                    <TableColumn fx:id="colNo" text=" " prefWidth="40"/>
+-                    <TableColumn fx:id="colMediaId" text="ID" prefWidth="80"/>
+-                    <TableColumn fx:id="colMediaTitle" text="Title" prefWidth="340"/>
+-                    <TableColumn fx:id="colMediaCategory" text="Category" prefWidth="140"/>
+-                    <TableColumn fx:id="colMediaCost" text="Cost" prefWidth="80"/>
+-                </columns>
+-            </TableView>
+-            <HBox alignment="TOP_RIGHT" spacing="10">
+-                <Button fx:id="btnPlay" text="Play" prefWidth="60" onAction="#btnPlayPressed" visible="false"/>
+-                <Button fx:id="btnRemove" text="Remove" prefWidth="70" onAction="#btnRemovePressed" visible="false"/>
+-            </HBox>
+-        </VBox>
+-    </center>
+-
+-    <bottom>
+-        <VBox alignment="CENTER" spacing="20" prefHeight="150" style="-fx-padding: 10 0 10 0;">
+-            <HBox alignment="CENTER" spacing="10">
+-                <Label text="Total:" style="-fx-font-size: 28px; -fx-font-weight: bold;"/>
+-                <Label fx:id="costLabel" text="0 $" style="-fx-font-size: 28px; -fx-font-weight: bold;"/>
+-            </HBox>
+-            <Button fx:id="btnPlaceOrder" text="Place Order" style="-fx-font-size: 24px; -fx-background-color: #004cff; -fx-text-fill: #fff;" prefWidth="220" prefHeight="48"/>
+-        </VBox>
+-    </bottom>
+-</BorderPane>
+Index: Lab05/AimsProject/src/main/java/hust/soict/itep/aims/media/DigitalVideoDisc.java
+===================================================================
+diff --git a/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/media/DigitalVideoDisc.java b/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/media/DigitalVideoDisc.java
+deleted file mode 100644
+--- a/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/media/DigitalVideoDisc.java	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,48 +0,0 @@
+-package hust.soict.itep.aims.media;
+-
+-import hust.soict.itep.aims.exception.PlayerException;
+-
+-public class DigitalVideoDisc extends Disc implements Playable{
+-    // Constructor
+-    public DigitalVideoDisc(int id, String title) {
+-        super(id, title);
+-    }
+-
+-    public DigitalVideoDisc(int id, String title, String category, float cost) {
+-        this(id, title);
+-        this.setCategory(category);
+-        this.setCost(cost);
+-    }
+-
+-    public DigitalVideoDisc(int id, String title, String category, String director, float cost) {
+-        this(id, title, category, cost);
+-        this.setDirector(director);
+-    }
+-
+-    public DigitalVideoDisc(int id, String title, String category, String director, int length, float cost) {
+-        this(id, title, category, director, cost);
+-        this.setLength(length);
+-    }
+-
+-    // Method to print a dvd
+-    @Override
+-    public void print() {
+-        System.out.println(getId() + ". DVD - "
+-                + getTitle() + " - "
+-                + getCategory() + " - "
+-                + getDirector() + " - "
+-                + getLength() + ": "
+-                + getCost() + "$");
+-    }
+-
+-    // Method to play a dvd
+-    @Override
+-    public void play() throws PlayerException {
+-        if (this.getLength() > 0) {
+-            System.out.println("Playing DVD: " + this.getTitle());
+-            System.out.println("DVD length: " + this.getLength());
+-        } else {
+-            throw new PlayerException("ERROR: DVD length is non-positive!");
+-        }
+-    }
+-}
+Index: Lab05/AimsProject/.idea/misc.xml
+===================================================================
+diff --git a/Lab05/AimsProject/.idea/misc.xml b/Lab05/AimsProject/.idea/misc.xml
+deleted file mode 100644
+--- a/Lab05/AimsProject/.idea/misc.xml	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,14 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="ExternalStorageConfigurationManager" enabled="true" />
+-  <component name="MavenProjectsManager">
+-    <option name="originalFiles">
+-      <list>
+-        <option value="$PROJECT_DIR$/pom.xml" />
+-      </list>
+-    </option>
+-  </component>
+-  <component name="ProjectRootManager" version="2" languageLevel="JDK_21" default="true" project-jdk-name="21" project-jdk-type="JavaSDK">
+-    <output url="file://$PROJECT_DIR$/out" />
+-  </component>
+-</project>
+\ No newline at end of file
+Index: Lab05/AimsProject/src/main/resources/hust/soict/itep/aims/screen/customer/view/Store.fxml
+===================================================================
+diff --git a/Lab05/AimsProject/src/main/resources/hust/soict/itep/aims/screen/customer/view/Store.fxml b/Lab05/AimsProject/src/main/resources/hust/soict/itep/aims/screen/customer/view/Store.fxml
+deleted file mode 100644
+--- a/Lab05/AimsProject/src/main/resources/hust/soict/itep/aims/screen/customer/view/Store.fxml	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,16 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<?import javafx.scene.control.*?>
+-<?import javafx.scene.layout.*?>
+-
+-<VBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml"
+-      fx:controller="hust.soict.itep.aims.screen.customer.controller.ViewStoreController"
+-      alignment="CENTER" spacing="10" prefWidth="1024" prefHeight="768" style="-fx-padding: 20 0 0 20;">
+-    <HBox alignment="CENTER" spacing="10" prefHeight="100">
+-        <Label text="AIMS" style="-fx-font-size: 50px; -fx-text-fill: #004cff;" />
+-        <Region HBox.hgrow="ALWAYS"/>
+-        <Button fx:id="btnViewCart" text="View Cart" prefWidth="100" prefHeight="50" onAction="#btnViewCartPressed" />
+-    </HBox>
+-    <ScrollPane fitToWidth="true" prefHeight="760">
+-        <GridPane fx:id="gridPane" hgap="20" vgap="20" />
+-    </ScrollPane>
+-</VBox>
+Index: Lab05/AimsProject/src/main/java/hust/soict/itep/aims/Store.java
+===================================================================
+diff --git a/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/Store.java b/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/Store.java
+deleted file mode 100644
+--- a/Lab05/AimsProject/src/main/java/hust/soict/itep/aims/Store.java	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,22 +0,0 @@
+-package hust.soict.itep.aims;
+-
+-import hust.soict.itep.aims.media.Media;
+-import javafx.collections.FXCollections;
+-import javafx.collections.ObservableList;
+-
+-import java.util.ArrayList;
+-import java.util.List;
+-
+-public class Store {
+-    private ObservableList<Media> itemsInStore = FXCollections.observableArrayList();
+-
+-    public ObservableList<Media> getItemsInStore() {
+-        return itemsInStore;
+-    }
+-    public void addMedia(Media media) {
+-        itemsInStore.add(media);
+-    }
+-    public void removeMedia(Media media) {
+-        itemsInStore.remove(media);
+-    }
+-}
+\ No newline at end of file
+Index: Lab05/AimsProject/.idea/.gitignore
+===================================================================
+diff --git a/Lab05/AimsProject/.idea/.gitignore b/Lab05/AimsProject/.idea/.gitignore
+deleted file mode 100644
+--- a/Lab05/AimsProject/.idea/.gitignore	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,8 +0,0 @@
+-# Default ignored files
+-/shelf/
+-/workspace.xml
+-# Editor-based HTTP Client requests
+-/httpRequests/
+-# Datasource local storage ignored files
+-/dataSources/
+-/dataSources.local.xml
+Index: Lab05/AimsProject/mvnw
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Lab05/AimsProject/mvnw b/Lab05/AimsProject/mvnw
+deleted file mode 100644
+--- a/Lab05/AimsProject/mvnw	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ /dev/null	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
+@@ -1,316 +0,0 @@
+-#!/bin/sh
+-# ----------------------------------------------------------------------------
+-# Licensed to the Apache Software Foundation (ASF) under one
+-# or more contributor license agreements.  See the NOTICE file
+-# distributed with this work for additional information
+-# regarding copyright ownership.  The ASF licenses this file
+-# to you under the Apache License, Version 2.0 (the
+-# "License"); you may not use this file except in compliance
+-# with the License.  You may obtain a copy of the License at
+-#
+-#    https://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing,
+-# software distributed under the License is distributed on an
+-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-# KIND, either express or implied.  See the License for the
+-# specific language governing permissions and limitations
+-# under the License.
+-# ----------------------------------------------------------------------------
+-
+-# ----------------------------------------------------------------------------
+-# Maven Start Up Batch script
+-#
+-# Required ENV vars:
+-# ------------------
+-#   JAVA_HOME - location of a JDK home dir
+-#
+-# Optional ENV vars
+-# -----------------
+-#   M2_HOME - location of maven2's installed home dir
+-#   MAVEN_OPTS - parameters passed to the Java VM when running Maven
+-#     e.g. to debug Maven itself, use
+-#       set MAVEN_OPTS=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000
+-#   MAVEN_SKIP_RC - flag to disable loading of mavenrc files
+-# ----------------------------------------------------------------------------
+-
+-if [ -z "$MAVEN_SKIP_RC" ] ; then
+-
+-  if [ -f /usr/local/etc/mavenrc ] ; then
+-    . /usr/local/etc/mavenrc
+-  fi
+-
+-  if [ -f /etc/mavenrc ] ; then
+-    . /etc/mavenrc
+-  fi
+-
+-  if [ -f "$HOME/.mavenrc" ] ; then
+-    . "$HOME/.mavenrc"
+-  fi
+-
+-fi
+-
+-# OS specific support.  $var _must_ be set to either true or false.
+-cygwin=false;
+-darwin=false;
+-mingw=false
+-case "`uname`" in
+-  CYGWIN*) cygwin=true ;;
+-  MINGW*) mingw=true;;
+-  Darwin*) darwin=true
+-    # Use /usr/libexec/java_home if available, otherwise fall back to /Library/Java/Home
+-    # See https://developer.apple.com/library/mac/qa/qa1170/_index.html
+-    if [ -z "$JAVA_HOME" ]; then
+-      if [ -x "/usr/libexec/java_home" ]; then
+-        export JAVA_HOME="`/usr/libexec/java_home`"
+-      else
+-        export JAVA_HOME="/Library/Java/Home"
+-      fi
+-    fi
+-    ;;
+-esac
+-
+-if [ -z "$JAVA_HOME" ] ; then
+-  if [ -r /etc/gentoo-release ] ; then
+-    JAVA_HOME=`java-config --jre-home`
+-  fi
+-fi
+-
+-if [ -z "$M2_HOME" ] ; then
+-  ## resolve links - $0 may be a link to maven's home
+-  PRG="$0"
+-
+-  # need this for relative symlinks
+-  while [ -h "$PRG" ] ; do
+-    ls=`ls -ld "$PRG"`
+-    link=`expr "$ls" : '.*-> \(.*\)$'`
+-    if expr "$link" : '/.*' > /dev/null; then
+-      PRG="$link"
+-    else
+-      PRG="`dirname "$PRG"`/$link"
+-    fi
+-  done
+-
+-  saveddir=`pwd`
+-
+-  M2_HOME=`dirname "$PRG"`/..
+-
+-  # make it fully qualified
+-  M2_HOME=`cd "$M2_HOME" && pwd`
+-
+-  cd "$saveddir"
+-  # echo Using m2 at $M2_HOME
+-fi
+-
+-# For Cygwin, ensure paths are in UNIX format before anything is touched
+-if $cygwin ; then
+-  [ -n "$M2_HOME" ] &&
+-    M2_HOME=`cygpath --unix "$M2_HOME"`
+-  [ -n "$JAVA_HOME" ] &&
+-    JAVA_HOME=`cygpath --unix "$JAVA_HOME"`
+-  [ -n "$CLASSPATH" ] &&
+-    CLASSPATH=`cygpath --path --unix "$CLASSPATH"`
+-fi
+-
+-# For Mingw, ensure paths are in UNIX format before anything is touched
+-if $mingw ; then
+-  [ -n "$M2_HOME" ] &&
+-    M2_HOME="`(cd "$M2_HOME"; pwd)`"
+-  [ -n "$JAVA_HOME" ] &&
+-    JAVA_HOME="`(cd "$JAVA_HOME"; pwd)`"
+-fi
+-
+-if [ -z "$JAVA_HOME" ]; then
+-  javaExecutable="`which javac`"
+-  if [ -n "$javaExecutable" ] && ! [ "`expr \"$javaExecutable\" : '\([^ ]*\)'`" = "no" ]; then
+-    # readlink(1) is not available as standard on Solaris 10.
+-    readLink=`which readlink`
+-    if [ ! `expr "$readLink" : '\([^ ]*\)'` = "no" ]; then
+-      if $darwin ; then
+-        javaHome="`dirname \"$javaExecutable\"`"
+-        javaExecutable="`cd \"$javaHome\" && pwd -P`/javac"
+-      else
+-        javaExecutable="`readlink -f \"$javaExecutable\"`"
+-      fi
+-      javaHome="`dirname \"$javaExecutable\"`"
+-      javaHome=`expr "$javaHome" : '\(.*\)/bin'`
+-      JAVA_HOME="$javaHome"
+-      export JAVA_HOME
+-    fi
+-  fi
+-fi
+-
+-if [ -z "$JAVACMD" ] ; then
+-  if [ -n "$JAVA_HOME"  ] ; then
+-    if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
+-      # IBM's JDK on AIX uses strange locations for the executables
+-      JAVACMD="$JAVA_HOME/jre/sh/java"
+-    else
+-      JAVACMD="$JAVA_HOME/bin/java"
+-    fi
+-  else
+-    JAVACMD="`\\unset -f command; \\command -v java`"
+-  fi
+-fi
+-
+-if [ ! -x "$JAVACMD" ] ; then
+-  echo "Error: JAVA_HOME is not defined correctly." >&2
+-  echo "  We cannot execute $JAVACMD" >&2
+-  exit 1
+-fi
+-
+-if [ -z "$JAVA_HOME" ] ; then
+-  echo "Warning: JAVA_HOME environment variable is not set."
+-fi
+-
+-CLASSWORLDS_LAUNCHER=org.codehaus.plexus.classworlds.launcher.Launcher
+-
+-# traverses directory structure from process work directory to filesystem root
+-# first directory with .mvn subdirectory is considered project base directory
+-find_maven_basedir() {
+-
+-  if [ -z "$1" ]
+-  then
+-    echo "Path not specified to find_maven_basedir"
+-    return 1
+-  fi
+-
+-  basedir="$1"
+-  wdir="$1"
+-  while [ "$wdir" != '/' ] ; do
+-    if [ -d "$wdir"/.mvn ] ; then
+-      basedir=$wdir
+-      break
+-    fi
+-    # workaround for JBEAP-8937 (on Solaris 10/Sparc)
+-    if [ -d "${wdir}" ]; then
+-      wdir=`cd "$wdir/.."; pwd`
+-    fi
+-    # end of workaround
+-  done
+-  echo "${basedir}"
+-}
+-
+-# concatenates all lines of a file
+-concat_lines() {
+-  if [ -f "$1" ]; then
+-    echo "$(tr -s '\n' ' ' < "$1")"
+-  fi
+-}
+-
+-BASE_DIR=`find_maven_basedir "$(pwd)"`
+-if [ -z "$BASE_DIR" ]; then
+-  exit 1;
+-fi
+-
+-##########################################################################################
+-# Extension to allow automatically downloading the maven-wrapper.jar from Maven-central
+-# This allows using the maven wrapper in projects that prohibit checking in binary data.
+-##########################################################################################
+-if [ -r "$BASE_DIR/.mvn/wrapper/maven-wrapper.jar" ]; then
+-    if [ "$MVNW_VERBOSE" = true ]; then
+-      echo "Found .mvn/wrapper/maven-wrapper.jar"
+-    fi
+-else
+-    if [ "$MVNW_VERBOSE" = true ]; then
+-      echo "Couldn't find .mvn/wrapper/maven-wrapper.jar, downloading it ..."
+-    fi
+-    if [ -n "$MVNW_REPOURL" ]; then
+-      jarUrl="$MVNW_REPOURL/org/apache/maven/wrapper/maven-wrapper/3.1.0/maven-wrapper-3.1.0.jar"
+-    else
+-      jarUrl="https://repo.maven.apache.org/maven2/org/apache/maven/wrapper/maven-wrapper/3.1.0/maven-wrapper-3.1.0.jar"
+-    fi
+-    while IFS="=" read key value; do
+-      case "$key" in (wrapperUrl) jarUrl="$value"; break ;;
+-      esac
+-    done < "$BASE_DIR/.mvn/wrapper/maven-wrapper.properties"
+-    if [ "$MVNW_VERBOSE" = true ]; then
+-      echo "Downloading from: $jarUrl"
+-    fi
+-    wrapperJarPath="$BASE_DIR/.mvn/wrapper/maven-wrapper.jar"
+-    if $cygwin; then
+-      wrapperJarPath=`cygpath --path --windows "$wrapperJarPath"`
+-    fi
+-
+-    if command -v wget > /dev/null; then
+-        if [ "$MVNW_VERBOSE" = true ]; then
+-          echo "Found wget ... using wget"
+-        fi
+-        if [ -z "$MVNW_USERNAME" ] || [ -z "$MVNW_PASSWORD" ]; then
+-            wget "$jarUrl" -O "$wrapperJarPath" || rm -f "$wrapperJarPath"
+-        else
+-            wget --http-user=$MVNW_USERNAME --http-password=$MVNW_PASSWORD "$jarUrl" -O "$wrapperJarPath" || rm -f "$wrapperJarPath"
+-        fi
+-    elif command -v curl > /dev/null; then
+-        if [ "$MVNW_VERBOSE" = true ]; then
+-          echo "Found curl ... using curl"
+-        fi
+-        if [ -z "$MVNW_USERNAME" ] || [ -z "$MVNW_PASSWORD" ]; then
+-            curl -o "$wrapperJarPath" "$jarUrl" -f
+-        else
+-            curl --user $MVNW_USERNAME:$MVNW_PASSWORD -o "$wrapperJarPath" "$jarUrl" -f
+-        fi
+-
+-    else
+-        if [ "$MVNW_VERBOSE" = true ]; then
+-          echo "Falling back to using Java to download"
+-        fi
+-        javaClass="$BASE_DIR/.mvn/wrapper/MavenWrapperDownloader.java"
+-        # For Cygwin, switch paths to Windows format before running javac
+-        if $cygwin; then
+-          javaClass=`cygpath --path --windows "$javaClass"`
+-        fi
+-        if [ -e "$javaClass" ]; then
+-            if [ ! -e "$BASE_DIR/.mvn/wrapper/MavenWrapperDownloader.class" ]; then
+-                if [ "$MVNW_VERBOSE" = true ]; then
+-                  echo " - Compiling MavenWrapperDownloader.java ..."
+-                fi
+-                # Compiling the Java class
+-                ("$JAVA_HOME/bin/javac" "$javaClass")
+-            fi
+-            if [ -e "$BASE_DIR/.mvn/wrapper/MavenWrapperDownloader.class" ]; then
+-                # Running the downloader
+-                if [ "$MVNW_VERBOSE" = true ]; then
+-                  echo " - Running MavenWrapperDownloader.java ..."
+-                fi
+-                ("$JAVA_HOME/bin/java" -cp .mvn/wrapper MavenWrapperDownloader "$MAVEN_PROJECTBASEDIR")
+-            fi
+-        fi
+-    fi
+-fi
+-##########################################################################################
+-# End of extension
+-##########################################################################################
+-
+-export MAVEN_PROJECTBASEDIR=${MAVEN_BASEDIR:-"$BASE_DIR"}
+-if [ "$MVNW_VERBOSE" = true ]; then
+-  echo $MAVEN_PROJECTBASEDIR
+-fi
+-MAVEN_OPTS="$(concat_lines "$MAVEN_PROJECTBASEDIR/.mvn/jvm.config") $MAVEN_OPTS"
+-
+-# For Cygwin, switch paths to Windows format before running java
+-if $cygwin; then
+-  [ -n "$M2_HOME" ] &&
+-    M2_HOME=`cygpath --path --windows "$M2_HOME"`
+-  [ -n "$JAVA_HOME" ] &&
+-    JAVA_HOME=`cygpath --path --windows "$JAVA_HOME"`
+-  [ -n "$CLASSPATH" ] &&
+-    CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
+-  [ -n "$MAVEN_PROJECTBASEDIR" ] &&
+-    MAVEN_PROJECTBASEDIR=`cygpath --path --windows "$MAVEN_PROJECTBASEDIR"`
+-fi
+-
+-# Provide a "standardized" way to retrieve the CLI args that will
+-# work with both Windows and non-Windows executions.
+-MAVEN_CMD_LINE_ARGS="$MAVEN_CONFIG $@"
+-export MAVEN_CMD_LINE_ARGS
+-
+-WRAPPER_LAUNCHER=org.apache.maven.wrapper.MavenWrapperMain
+-
+-exec "$JAVACMD" \
+-  $MAVEN_OPTS \
+-  $MAVEN_DEBUG_OPTS \
+-  -classpath "$MAVEN_PROJECTBASEDIR/.mvn/wrapper/maven-wrapper.jar" \
+-  "-Dmaven.home=${M2_HOME}" \
+-  "-Dmaven.multiModuleProjectDirectory=${MAVEN_PROJECTBASEDIR}" \
+-  ${WRAPPER_LAUNCHER} $MAVEN_CONFIG "$@"
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"6eb63af3-fd56-4257-96f5-05560b2da878\" name=\"Changes\" comment=\"\" />\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_BRANCH_BY_REPOSITORY\">\r\n      <map>\r\n        <entry key=\"$PROJECT_DIR$\" value=\"release/lab04\" />\r\n      </map>\r\n    </option>\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"GitHubPullRequestSearchHistory\">{\r\n  &quot;lastFilter&quot;: {\r\n    &quot;state&quot;: &quot;OPEN&quot;,\r\n    &quot;assignee&quot;: &quot;Tienhehe0&quot;\r\n  }\r\n}</component>\r\n  <component name=\"GithubPullRequestsUISettings\">{\r\n  &quot;selectedUrlAndAccountId&quot;: {\r\n    &quot;url&quot;: &quot;https://github.com/Nhatminh309/OOP.Lab.20242.20215284.TranNhatMinh&quot;,\r\n    &quot;accountId&quot;: &quot;60b81be4-c2fc-4e0e-aef1-edfc6c46b794&quot;\r\n  }\r\n}</component>\r\n  <component name=\"ProjectColorInfo\">{\r\n  &quot;associatedIndex&quot;: 0\r\n}</component>\r\n  <component name=\"ProjectId\" id=\"2wMd8ou7UUZ48YPW7NufMFZYmVr\" />\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\"><![CDATA[{\r\n  \"keyToString\": {\r\n    \"RunOnceActivity.ShowReadmeOnStart\": \"true\",\r\n    \"RunOnceActivity.git.unshallow\": \"true\",\r\n    \"git-widget-placeholder\": \"release/lab05\",\r\n    \"kotlin-language-version-configured\": \"true\",\r\n    \"last_opened_file_path\": \"C:/NhatMinh/Study/Lab-Git/OOP.Lab.20242.20215284.TranNhatMinh\",\r\n    \"node.js.detected.package.eslint\": \"true\",\r\n    \"node.js.detected.package.tslint\": \"true\",\r\n    \"node.js.selected.package.eslint\": \"(autodetect)\",\r\n    \"node.js.selected.package.tslint\": \"(autodetect)\",\r\n    \"nodejs_package_manager_path\": \"npm\",\r\n    \"vue.rearranger.settings.migration\": \"true\"\r\n  }\r\n}]]></component>\r\n  <component name=\"SharedIndexes\">\r\n    <attachedChunks>\r\n      <set>\r\n        <option value=\"bundled-jdk-9823dce3aa75-a94e463ab2e7-intellij.indexing.shared.core-IU-243.26053.27\" />\r\n        <option value=\"bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-IU-243.26053.27\" />\r\n      </set>\r\n    </attachedChunks>\r\n  </component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"6eb63af3-fd56-4257-96f5-05560b2da878\" name=\"Changes\" comment=\"\" />\r\n      <created>1745855219527</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1745855219527</updated>\r\n      <workItem from=\"1745855220644\" duration=\"667000\" />\r\n      <workItem from=\"1745927540644\" duration=\"69000\" />\r\n      <workItem from=\"1745962810922\" duration=\"166000\" />\r\n      <workItem from=\"1748081702222\" duration=\"591000\" />\r\n      <workItem from=\"1748257672197\" duration=\"48000\" />\r\n      <workItem from=\"1748689121004\" duration=\"728000\" />\r\n    </task>\r\n    <servers />\r\n  </component>\r\n  <component name=\"TypeScriptGeneratedFilesManager\">\r\n    <option name=\"version\" value=\"3\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision b326b2016345d2a75a58875be72c80be019ad0a3)
++++ b/.idea/workspace.xml	(date 1748689972697)
+@@ -38,21 +38,21 @@
+     <option name="hideEmptyMiddlePackages" value="true" />
+     <option name="showLibraryContents" value="true" />
+   </component>
+-  <component name="PropertiesComponent"><![CDATA[{
+-  "keyToString": {
+-    "RunOnceActivity.ShowReadmeOnStart": "true",
+-    "RunOnceActivity.git.unshallow": "true",
+-    "git-widget-placeholder": "release/lab05",
+-    "kotlin-language-version-configured": "true",
+-    "last_opened_file_path": "C:/NhatMinh/Study/Lab-Git/OOP.Lab.20242.20215284.TranNhatMinh",
+-    "node.js.detected.package.eslint": "true",
+-    "node.js.detected.package.tslint": "true",
+-    "node.js.selected.package.eslint": "(autodetect)",
+-    "node.js.selected.package.tslint": "(autodetect)",
+-    "nodejs_package_manager_path": "npm",
+-    "vue.rearranger.settings.migration": "true"
++  <component name="PropertiesComponent">{
++  &quot;keyToString&quot;: {
++    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
++    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
++    &quot;git-widget-placeholder&quot;: &quot;release/lab05&quot;,
++    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
++    &quot;last_opened_file_path&quot;: &quot;C:/NhatMinh/Study/Lab-Git/OOP.Lab.20242.20215284.TranNhatMinh&quot;,
++    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
++    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
++    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
++    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
++    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
++    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+   }
+-}]]></component>
++}</component>
+   <component name="SharedIndexes">
+     <attachedChunks>
+       <set>
+@@ -75,6 +75,7 @@
+       <workItem from="1748081702222" duration="591000" />
+       <workItem from="1748257672197" duration="48000" />
+       <workItem from="1748689121004" duration="728000" />
++      <workItem from="1748689860693" duration="112000" />
+     </task>
+     <servers />
+   </component>
